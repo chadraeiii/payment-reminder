@@ -6,7 +6,7 @@
   <title>Service Notice</title>
   <style>
     body {
-      margin: 0; 
+      margin: 0;
       padding: 0;
       font-family: "Segoe UI", Tahoma, sans-serif;
       background: #f0f4fa;
@@ -57,28 +57,28 @@
   </div>
 
   <script>
-    // === AUTO-DETECT via MikroTik Address Lists ===
-    // We rely on MikroTik NAT to send users based on address list
-    // so we just redirect them to proper page.
-
+    // === AUTO-DETECT STATE VIA state.txt ===
     setTimeout(function () {
-      // Change URL based on MikroTik redirection
-      // MikroTik will serve the same index.html, but NAT decides where they belong
-      // (We can still force based on query if MikroTik appends ?state=)
-      const urlParams = new URLSearchParams(window.location.search);
-      const state = urlParams.get('state'); 
-
-      if (state === "expired") {
-        window.location.href = "expired.html";
-      } else if (state === "1day") {
-        window.location.href = "1day.html";
-      } else if (state === "3days") {
-        window.location.href = "3days.html";
-      } else {
-        // If not in any list, close silently (or reload to internet)
-        window.location.href = "https://www.google.com";
-      }
-    }, 1500); // Delay for loading animation
+      fetch("state.txt?t=" + new Date().getTime()) // prevent cache
+        .then(response => response.text())
+        .then(state => {
+          state = state.trim();
+          if (state === "expired") {
+            window.location.href = "expired.html";
+          } else if (state === "1day") {
+            window.location.href = "1-day.html";
+          } else if (state === "3days") {
+            window.location.href = "3-days.html";
+          } else {
+            // Normal users – allow full internet
+            window.location.href = "https://www.google.com";
+          }
+        })
+        .catch(() => {
+          // Fallback if fetch fails
+          window.location.href = "https://www.google.com";
+        });
+    }, 1500); // Delay for visual effect
   </script>
 </body>
 </html>
